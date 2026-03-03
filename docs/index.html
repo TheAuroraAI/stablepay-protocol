@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StablePay Protocol — Institutional Stablecoin Infrastructure on Solana</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --border: #1e1e2e;
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --green: #10b981;
+      --yellow: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; line-height: 1.6; }
+    a { color: var(--accent2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+    header { text-align: center; padding: 4rem 0 3rem; border-bottom: 1px solid var(--border); }
+    header h1 { font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    header p { color: var(--muted); margin-top: 0.75rem; font-size: 1.1rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+    .badge { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.8rem; font-weight: 600; margin: 0.25rem; }
+    .badge-green { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); }
+    .badge-purple { background: rgba(124,58,237,0.15); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
+    .badge-cyan { background: rgba(6,182,212,0.15); color: var(--accent2); border: 1px solid rgba(6,182,212,0.3); }
+    .badges { margin-top: 1.5rem; }
+    section { padding: 2.5rem 0; border-bottom: 1px solid var(--border); }
+    h2 { font-size: 1.4rem; font-weight: 700; margin-bottom: 1.25rem; color: #c4b5fd; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } header h1 { font-size: 1.8rem; } }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.25rem; }
+    .card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .card p { color: var(--muted); font-size: 0.9rem; }
+    .endpoint { background: var(--surface); border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.75rem 1rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+    .method { font-weight: 700; font-size: 0.8rem; padding: 0.15rem 0.5rem; border-radius: 0.25rem; }
+    .GET { background: rgba(16,185,129,0.2); color: var(--green); }
+    .POST { background: rgba(124,58,237,0.2); color: #a78bfa; }
+    .PATCH { background: rgba(245,158,11,0.2); color: var(--yellow); }
+    .DELETE { background: rgba(239,68,68,0.2); color: #f87171; }
+    .path { font-family: monospace; font-size: 0.9rem; flex: 1; padding: 0 0.75rem; }
+    .price { color: var(--accent2); font-size: 0.8rem; white-space: nowrap; }
+    .free { color: var(--green); font-size: 0.8rem; }
+    .stat { text-align: center; }
+    .stat .num { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stat .label { color: var(--muted); font-size: 0.85rem; margin-top: 0.25rem; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+    @media (max-width: 600px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    code { font-family: monospace; background: var(--surface); border: 1px solid var(--border); padding: 0.1rem 0.4rem; border-radius: 0.25rem; font-size: 0.85rem; word-break: break-all; }
+    pre { background: var(--surface); border: 1px solid var(--border); border-radius: 0.5rem; padding: 1rem; overflow-x: auto; font-size: 0.85rem; margin-top: 0.75rem; }
+    .live-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; margin-right: 0.4rem; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    footer { text-align: center; padding: 2rem 0; color: var(--muted); font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>StablePay Protocol</h1>
+    <p>Institutional stablecoin infrastructure on Solana — multi-sig vaults, compliance controls, and AI-native payment rails via MCP + x402</p>
+    <div class="badges">
+      <span class="badge badge-green"><span class="live-dot"></span>Live on Devnet</span>
+      <span class="badge badge-purple">Anchor 0.32</span>
+      <span class="badge badge-cyan">MCP + x402</span>
+      <span class="badge badge-purple">StableHacks 2026</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="stats-grid">
+      <div class="stat"><div class="num">9</div><div class="label">Instructions</div></div>
+      <div class="stat"><div class="num">30</div><div class="label">Tests</div></div>
+      <div class="stat"><div class="num">13</div><div class="label">API Endpoints</div></div>
+      <div class="stat"><div class="num">6</div><div class="label">MCP Tools</div></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Deployment</h2>
+    <div class="grid2">
+      <div class="card">
+        <h3>Program (Devnet)</h3>
+        <p style="margin-top:0.5rem"><code>Ch11Ba993nA8bN2cEnoys7XwxhZxqvA5CCuLb3EwrJjF</code></p>
+        <p style="margin-top:0.5rem"><a href="https://explorer.solana.com/address/Ch11Ba993nA8bN2cEnoys7XwxhZxqvA5CCuLb3EwrJjF?cluster=devnet" target="_blank">View on Solana Explorer →</a></p>
+      </div>
+      <div class="card">
+        <h3>REST API</h3>
+        <p style="margin-top:0.5rem"><code>https://stablepay-api.onrender.com</code></p>
+        <p style="margin-top:0.5rem"><a href="https://stablepay-api.onrender.com/health" target="_blank">Health Check →</a></p>
+      </div>
+      <div class="card">
+        <h3>IDL (On-Chain)</h3>
+        <p style="margin-top:0.5rem"><code>UcvuzV4P2CftGjapp6AzCiZfKcazEo81GhVePRnfP7P</code></p>
+        <p style="margin-top:0.5rem">Published via <code>anchor idl init</code></p>
+      </div>
+      <div class="card">
+        <h3>Source Code</h3>
+        <p style="margin-top:0.5rem"><a href="https://github.com/TheAuroraAI/stablepay-protocol" target="_blank">github.com/TheAuroraAI/stablepay-protocol →</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>What It Does</h2>
+    <div class="grid2">
+      <div class="card">
+        <h3>Multi-Sig Vaults</h3>
+        <p>M-of-N approval threshold for every transfer. Institutional-grade custody without a custodian.</p>
+      </div>
+      <div class="card">
+        <h3>Compliance Controls</h3>
+        <p>Pause/unpause, transfer limits, and allowlist enforcement — all on-chain, all auditable.</p>
+      </div>
+      <div class="card">
+        <h3>AI-Native via MCP</h3>
+        <p>6 MCP tools let AI agents create vaults, propose transfers, and query state without writing Solana code.</p>
+      </div>
+      <div class="card">
+        <h3>x402 Payment Rails</h3>
+        <p>Write operations are gated behind USDC micropayments on Base via x402 — agents pay per call.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>REST API Endpoints</h2>
+
+    <div class="endpoint"><span class="method GET">GET</span><span class="path">/health</span><span class="free">free</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="path">/info</span><span class="free">free</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="path">/vault/:vaultPda</span><span class="free">free</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="path">/vault/:vaultPda/proposals</span><span class="free">free</span></div>
+    <div class="endpoint"><span class="method GET">GET</span><span class="path">/vault/:vaultPda/proposals/:index</span><span class="free">free</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="path">/vault</span><span class="price">0.05 USDC</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="path">/vault/:id/propose</span><span class="price">0.01 USDC</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="path">/vault/:id/approve/:index</span><span class="price">0.005 USDC</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="path">/vault/:id/execute/:index</span><span class="price">0.01 USDC</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="path">/vault/:id/cancel/:index</span><span class="price">0.005 USDC</span></div>
+    <div class="endpoint"><span class="method PATCH">PATCH</span><span class="path">/vault/:id/pause</span><span class="price">0.01 USDC</span></div>
+    <div class="endpoint"><span class="method PATCH">PATCH</span><span class="path">/vault/:id/limit</span><span class="price">0.01 USDC</span></div>
+    <div class="endpoint"><span class="method POST">POST</span><span class="path">/vault/:id/allowlist</span><span class="price">0.01 USDC</span></div>
+    <div class="endpoint"><span class="method DELETE">DELETE</span><span class="path">/vault/:id/allowlist/:addr</span><span class="price">0.01 USDC</span></div>
+
+    <pre>$ curl https://stablepay-api.onrender.com/health
+{"status":"ok","program":"Ch11Ba993nA8bN2cEnoys7XwxhZxqvA5CCuLb3EwrJjF","cluster":"devnet","timestamp":"2026-03-03T09:00:00Z"}</pre>
+  </section>
+
+  <section>
+    <h2>MCP Tools (AI Agent Integration)</h2>
+    <div class="grid2">
+      <div class="card"><h3>stablepay_initialize_vault</h3><p>Create a new multi-sig vault with threshold, signers, and compliance settings.</p></div>
+      <div class="card"><h3>stablepay_propose_transfer</h3><p>Propose a token transfer from vault to recipient.</p></div>
+      <div class="card"><h3>stablepay_approve_transfer</h3><p>Approve a pending transfer proposal (signer only).</p></div>
+      <div class="card"><h3>stablepay_execute_transfer</h3><p>Execute a proposal that has reached approval threshold.</p></div>
+      <div class="card"><h3>stablepay_get_vault</h3><p>Fetch vault state: balance, signers, threshold, pause status.</p></div>
+      <div class="card"><h3>stablepay_list_proposals</h3><p>List all transfer proposals with status and approval counts.</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Quick Start</h2>
+    <pre>npm install @stablepay/sdk
+
+import { StablePaySDK, findVaultPda } from '@stablepay/sdk';
+
+const sdk = new StablePaySDK(connection, wallet);
+
+// Create 2-of-3 multisig vault
+const vaultPda = await sdk.initializeVault({
+  threshold: 2,
+  signers: [signer1, signer2, signer3],
+  transferLimit: new BN(100_000_000), // 100 USDC
+});
+
+// Propose transfer
+await sdk.proposeTransfer(vaultPda, {
+  recipient: recipientPubkey,
+  amount: new BN(50_000_000),
+  mint: USDC_MINT,
+});</pre>
+  </section>
+
+  <footer>
+    <p>Built by <a href="https://github.com/TheAuroraAI" target="_blank">Aurora</a> · StableHacks 2026 · <a href="https://github.com/TheAuroraAI/stablepay-protocol" target="_blank">GitHub</a></p>
+  </footer>
+
+</div>
+</body>
+</html>
