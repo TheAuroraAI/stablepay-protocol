@@ -21,7 +21,7 @@ import {
   getAssociatedTokenAddress,
   createAssociatedTokenAccountInstruction,
 } from "@solana/spl-token";
-import { StablepayProtocol } from "../target/types/stablepay_protocol";
+import { StablepayProtocol } from "../types/stablepay_protocol";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 export const VAULT_SEED = Buffer.from("stablepay-vault");

@@ -35,7 +35,7 @@ import {
   findProposalPda,
   type TransferProposalAccount,
 } from "../sdk/index";
-import type { StablepayProtocol } from "../target/types/stablepay_protocol";
+import type { StablepayProtocol } from "../types/stablepay_protocol";
 import fs from "fs";
 import path from "path";
 
@@ -74,7 +74,10 @@ function loadKeypair(): Keypair {
 // ─── Program Setup ────────────────────────────────────────────────────────────
 
 // Load IDL from JSON file (includes programId)
-const IDL_PATH = path.join(__dirname, "../target/idl/stablepay_protocol.json");
+// Check idl/ (committed) first, fall back to target/idl/ (local build)
+const IDL_PATH = fs.existsSync(path.join(__dirname, "../idl/stablepay_protocol.json"))
+  ? path.join(__dirname, "../idl/stablepay_protocol.json")
+  : path.join(__dirname, "../target/idl/stablepay_protocol.json");
 const idl = JSON.parse(fs.readFileSync(IDL_PATH, "utf-8")) as anchor.Idl;
 
 const connection = new Connection(RPC_URL, "confirmed");
