@@ -3,15 +3,11 @@ services:
     name: stablepay-api
     env: node
     plan: free
-    buildCommand: npm install
-    startCommand: npx ts-node --project tsconfig.json app/server.ts
+    buildCommand: npm install --include=dev
+    startCommand: npm start
     healthCheckPath: /health
     envVars:
-      - key: NODE_VERSION
-        value: 20
       - key: CLUSTER
         value: devnet
       - key: X402_ENABLED
         value: "false"
-      - key: PORT
-        value: "10000"

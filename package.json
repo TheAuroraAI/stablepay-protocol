@@ -2,7 +2,7 @@
   "license": "ISC",
   "scripts": {
     "build": "tsc --outDir dist",
-    "start": "ts-node --project tsconfig.json app/server.ts",
+    "start": "ts-node --transpile-only app/server.ts",
     "start:mcp": "ts-node --project tsconfig.json app/mcp.ts",
     "typecheck": "tsc --noEmit",
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
