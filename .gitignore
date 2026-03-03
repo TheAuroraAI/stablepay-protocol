@@ -1,0 +1,6 @@
+target/
+.anchor/
+node_modules/
+.env
+*.so
+dist/
