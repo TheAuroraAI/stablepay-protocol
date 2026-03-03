@@ -6,7 +6,7 @@ pub mod state;
 use anchor_lang::prelude::*;
 use instructions::*;
 
-declare_id!("StbPay1111111111111111111111111111111111111");
+declare_id!("Ch11Ba993nA8bN2cEnoys7XwxhZxqvA5CCuLb3EwrJjF");
 
 #[program]
 pub mod stablepay_protocol {
