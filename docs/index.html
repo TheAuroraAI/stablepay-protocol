@@ -106,6 +106,38 @@
   </section>
 
   <section>
+    <h2><span class="live-dot"></span>Live Demo Vault (Devnet)</h2>
+    <div class="card" style="margin-bottom:1rem">
+      <h3 style="color:var(--green)">2-of-3 Multi-Sig Vault — Active on Solana Devnet</h3>
+      <p style="margin-top:0.75rem">A real vault is deployed and queryable right now. This is not a mock — it's an on-chain account at the program address.</p>
+      <pre style="margin-top:1rem">{
+  "vaultPda":     "HLuNLTQ1XBzZ4YNAkcj9mEFhSpqE2iK6spHSj1Mc53Sy",
+  "owner":        "GpXHXs5KfzfXbNKcMLNbAMsJsgPsBE7y5GtwVoiuxYvH",
+  "threshold":    2,
+  "approvers":    3,
+  "transferLimit": "1,000 USDC",
+  "paused":       false,
+  "initTx":       "4Vd6CcagiTue896X...WZ5C472"
+}</pre>
+      <p style="margin-top:0.75rem">
+        <a href="https://explorer.solana.com/address/HLuNLTQ1XBzZ4YNAkcj9mEFhSpqE2iK6spHSj1Mc53Sy?cluster=devnet" target="_blank">View vault on Solana Explorer →</a>
+        &nbsp;·&nbsp;
+        <a href="https://explorer.solana.com/tx/4Vd6CcagiTue896X139DCXd8wqQChr1gZVHbRZcMPcX4NGNsejd9RUmk8uWQ6BHu1i2aVCu3u4us1VCMdWZ5C472?cluster=devnet" target="_blank">View init TX →</a>
+      </p>
+    </div>
+    <pre>$ curl https://stablepay-api.onrender.com/vault/HLuNLTQ1XBzZ4YNAkcj9mEFhSpqE2iK6spHSj1Mc53Sy
+{
+  "vaultPda": "HLuNLTQ1XBzZ4YNAkcj9mEFhSpqE2iK6spHSj1Mc53Sy",
+  "owner": "GpXHXs5KfzfXbNKcMLNbAMsJsgPsBE7y5GtwVoiuxYvH",
+  "threshold": 2,
+  "approvers": ["AKnL4NNf...", "9hSR6S7W...", "GyGKxMyg..."],
+  "proposalCount": "0",
+  "transferLimit": "1000000000",
+  "paused": false
+}</pre>
+  </section>
+
+  <section>
     <h2>What It Does</h2>
     <div class="grid2">
       <div class="card">

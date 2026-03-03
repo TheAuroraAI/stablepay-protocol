@@ -1,0 +1,28 @@
+{
+  "network": "devnet",
+  "programId": "Ch11Ba993nA8bN2cEnoys7XwxhZxqvA5CCuLb3EwrJjF",
+  "owner": "GpXHXs5KfzfXbNKcMLNbAMsJsgPsBE7y5GtwVoiuxYvH",
+  "usdcMint": "BEpx5ccaLqfR6cn9goqequvKiRPWs7ah5shw9b4VGRhy",
+  "vaultPda": "HLuNLTQ1XBzZ4YNAkcj9mEFhSpqE2iK6spHSj1Mc53Sy",
+  "approvers": [
+    "AKnL4NNf3DGWZJS6cPknBuEGnVsV4A4m5tgebLHaRSZ9",
+    "9hSR6S7WPtxmTojgo6GG3k4yDPecgJY292j7xrsUGWBu",
+    "GyGKxMyg1p9SsHfm15MkNUu1u9TN2JtTspcdmrtGUdse"
+  ],
+  "threshold": 2,
+  "transferLimit": "1000 USDC",
+  "transactions": {
+    "vault_init": "4Vd6CcagiTue896X139DCXd8wqQChr1gZVHbRZcMPcX4NGNsejd9RUmk8uWQ6BHu1i2aVCu3u4us1VCMdWZ5C472",
+    "deposit": "error"
+  },
+  "vault_state": {
+    "owner": "GpXHXs5KfzfXbNKcMLNbAMsJsgPsBE7y5GtwVoiuxYvH",
+    "threshold": 2,
+    "proposalCount": "0",
+    "transferLimit": "1000000000",
+    "paused": false,
+    "allowlistEnabled": false
+  },
+  "created_at": "2026-03-03T09:48:04.570Z",
+  "explorer_url": "https://explorer.solana.com/address/HLuNLTQ1XBzZ4YNAkcj9mEFhSpqE2iK6spHSj1Mc53Sy?cluster=devnet"
+}
