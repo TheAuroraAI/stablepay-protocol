@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-03-03T15:29:46.619Z",
+  "network": "devnet",
+  "programId": "Ch11Ba993nA8bN2cEnoys7XwxhZxqvA5CCuLb3EwrJjF",
+  "vaultPda": "CvY1jf8eCSZhBLyynHKybbSM1kVxvgypo9WYd2m2EJ5Y",
+  "usdcMint": "7YgS1WpkimGzVmiUpYFJ3v3iGnzvj95s1HRiABrQ7rA2",
+  "proposalPda": "2yJHZA4sEDpHwdT9xewNdwUcin8HeTxt6EECZMApENbT",
+  "transactions": {
+    "initializeVault": "2jwVk8hWUWitVhpQhmDwAYingHN1dpuSgaf2uALsh9JvwVoMa6jgnNYLr74cKj5FbVcCnZhf7aRm5uXwFqpkByVn",
+    "fundVault": "4oJWjJ3CVzwz5jQVdDUq5bLeK5jkQLAkTgbNJ3zgx1Cbg4xsYrhaud2hsLPD276JBcizWHrd4VBMS3q31Hnt3WZT",
+    "proposeTransfer": "54tXMaJmonzSaHTnpG7PunTdYFHX2DYCwg1KYVcAzy4rwYxHqnxsUGZagum35LfFfVLaBF9MSyrydhGaWpmmjeWv",
+    "approveTransfer": "2ajoMLPuKyW7U45UTbjHcP1dpzuhKCwscoejH81pVww84px95FSrKKKYswqyN7WQwmdnK1MgtkxxJkjrNkovV4c5",
+    "executeTransfer": "4ra7Fm824PoCVNr4Ky1ZV1AhEtZPwVNruAfi4rAMQNfV3C612WsvrjSiWKhJGNHjGMbZ8PuXKCpXKp1s8B3p8yuL"
+  },
+  "vault": {
+    "owner": "GpXHXs5KfzfXbNKcMLNbAMsJsgPsBE7y5GtwVoiuxYvH",
+    "approvers": [
+      "GpXHXs5KfzfXbNKcMLNbAMsJsgPsBE7y5GtwVoiuxYvH",
+      "96iyd7zkgvYXbrf7Fse6X5exACbT7DFt41H7eiZhyGs2"
+    ],
+    "threshold": 2,
+    "transferAmountUsdc": 1
+  }
+}

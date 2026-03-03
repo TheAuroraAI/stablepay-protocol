@@ -106,32 +106,34 @@
   </section>
 
   <section>
-    <h2><span class="live-dot"></span>Live Demo Vault (Devnet)</h2>
+    <h2><span class="live-dot"></span>Live Demo — Full Multi-Sig Flow (Devnet)</h2>
     <div class="card" style="margin-bottom:1rem">
-      <h3 style="color:var(--green)">2-of-3 Multi-Sig Vault — Active on Solana Devnet</h3>
-      <p style="margin-top:0.75rem">A real vault is deployed and queryable right now. This is not a mock — it's an on-chain account at the program address.</p>
-      <pre style="margin-top:1rem">{
-  "vaultPda":     "HLuNLTQ1XBzZ4YNAkcj9mEFhSpqE2iK6spHSj1Mc53Sy",
-  "owner":        "GpXHXs5KfzfXbNKcMLNbAMsJsgPsBE7y5GtwVoiuxYvH",
-  "threshold":    2,
-  "approvers":    3,
-  "transferLimit": "1,000 USDC",
-  "paused":       false,
-  "initTx":       "4Vd6CcagiTue896X...WZ5C472"
-}</pre>
-      <p style="margin-top:0.75rem">
-        <a href="https://explorer.solana.com/address/HLuNLTQ1XBzZ4YNAkcj9mEFhSpqE2iK6spHSj1Mc53Sy?cluster=devnet" target="_blank">View vault on Solana Explorer →</a>
-        &nbsp;·&nbsp;
-        <a href="https://explorer.solana.com/tx/4Vd6CcagiTue896X139DCXd8wqQChr1gZVHbRZcMPcX4NGNsejd9RUmk8uWQ6BHu1i2aVCu3u4us1VCMdWZ5C472?cluster=devnet" target="_blank">View init TX →</a>
+      <h3 style="color:var(--green)">Complete 2-of-2 Multi-Sig Workflow — 5 On-Chain Transactions</h3>
+      <p style="margin-top:0.75rem">The full institutional payment workflow was executed on Solana devnet: vault initialization → funding → propose → approve → execute. All verifiable on-chain.</p>
+      <table style="margin-top:1rem;width:100%;font-size:0.85rem;border-collapse:collapse">
+        <thead><tr style="color:var(--muted)"><th style="text-align:left;padding:0.4rem 0.6rem;border-bottom:1px solid var(--border)">Step</th><th style="text-align:left;padding:0.4rem 0.6rem;border-bottom:1px solid var(--border)">Instruction</th><th style="text-align:left;padding:0.4rem 0.6rem;border-bottom:1px solid var(--border)">Transaction</th></tr></thead>
+        <tbody>
+          <tr><td style="padding:0.4rem 0.6rem">1</td><td style="padding:0.4rem 0.6rem;font-family:monospace">initialize_vault</td><td style="padding:0.4rem 0.6rem"><a href="https://explorer.solana.com/tx/2jwVk8hWUWitVhpQhmDwAYingHN1dpuSgaf2uALsh9JvwVoMa6jgnNYLr74cKj5FbVcCnZhf7aRm5uXwFqpkByVn?cluster=devnet" target="_blank">2jwVk8hW... →</a></td></tr>
+          <tr><td style="padding:0.4rem 0.6rem">2</td><td style="padding:0.4rem 0.6rem;font-family:monospace">fund_vault (10 USDC)</td><td style="padding:0.4rem 0.6rem"><a href="https://explorer.solana.com/tx/4oJWjJ3CVzwz5jQVdDUq5bLeK5jkQLAkTgbNJ3zgx1Cbg4xsYrhaud2hsLPD276JBcizWHrd4VBMS3q31Hnt3WZT?cluster=devnet" target="_blank">4oJWjJ3C... →</a></td></tr>
+          <tr><td style="padding:0.4rem 0.6rem">3</td><td style="padding:0.4rem 0.6rem;font-family:monospace">propose_transfer (1 USDC)</td><td style="padding:0.4rem 0.6rem"><a href="https://explorer.solana.com/tx/54tXMaJmonzSaHTnpG7PunTdYFHX2DYCwg1KYVcAzy4rwYxHqnxsUGZagum35LfFfVLaBF9MSyrydhGaWpmmjeWv?cluster=devnet" target="_blank">54tXMaJm... →</a></td></tr>
+          <tr><td style="padding:0.4rem 0.6rem">4</td><td style="padding:0.4rem 0.6rem;font-family:monospace">approve_transfer</td><td style="padding:0.4rem 0.6rem"><a href="https://explorer.solana.com/tx/2ajoMLPuKyW7U45UTbjHcP1dpzuhKCwscoejH81pVww84px95FSrKKKYswqyN7WQwmdnK1MgtkxxJkjrNkovV4c5?cluster=devnet" target="_blank">2ajoMLPu... →</a></td></tr>
+          <tr style="color:var(--green)"><td style="padding:0.4rem 0.6rem">5</td><td style="padding:0.4rem 0.6rem;font-family:monospace">execute_transfer ✅</td><td style="padding:0.4rem 0.6rem"><a href="https://explorer.solana.com/tx/4ra7Fm824PoCVNr4Ky1ZV1AhEtZPwVNruAfi4rAMQNfV3C612WsvrjSiWKhJGNHjGMbZ8PuXKCpXKp1s8B3p8yuL?cluster=devnet" target="_blank">4ra7Fm82... →</a></td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:0.75rem;color:var(--muted);font-size:0.85rem">
+        Vault: <a href="https://explorer.solana.com/address/CvY1jf8eCSZhBLyynHKybbSM1kVxvgypo9WYd2m2EJ5Y?cluster=devnet" target="_blank">CvY1jf8e...</a>
+        &nbsp;·&nbsp;Threshold: 2-of-2
+        &nbsp;·&nbsp;Amount: 1 USDC
+        &nbsp;·&nbsp;Memo: "StableHacks 2026 demo"
       </p>
     </div>
-    <pre>$ curl https://stablepay-api.onrender.com/vault/HLuNLTQ1XBzZ4YNAkcj9mEFhSpqE2iK6spHSj1Mc53Sy
+    <pre>$ curl https://stablepay-api.onrender.com/vault/CvY1jf8eCSZhBLyynHKybbSM1kVxvgypo9WYd2m2EJ5Y
 {
-  "vaultPda": "HLuNLTQ1XBzZ4YNAkcj9mEFhSpqE2iK6spHSj1Mc53Sy",
+  "vaultPda": "CvY1jf8eCSZhBLyynHKybbSM1kVxvgypo9WYd2m2EJ5Y",
   "owner": "GpXHXs5KfzfXbNKcMLNbAMsJsgPsBE7y5GtwVoiuxYvH",
   "threshold": 2,
-  "approvers": ["AKnL4NNf...", "9hSR6S7W...", "GyGKxMyg..."],
-  "proposalCount": "0",
+  "approvers": ["GpXHXs5K...", "96iyd7zk..."],
+  "proposalCount": "1",
   "transferLimit": "1000000000",
   "paused": false
 }</pre>
