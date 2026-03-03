@@ -218,10 +218,64 @@ await sdk.proposeTransfer(vaultPda, {
 });</pre>
   </section>
 
+  <section>
+    <h2><span class="live-dot"></span>Recent On-Chain Transactions (Live)</h2>
+    <div id="tx-loading" class="card" style="color:var(--muted);text-align:center;padding:2rem">
+      Fetching from Solana devnet...
+    </div>
+    <div id="tx-list" style="display:none"></div>
+    <p style="color:var(--muted);font-size:0.8rem;margin-top:0.75rem">
+      Program: <code>Ch11Ba993nA8bN2cEnoys7XwxhZxqvA5CCuLb3EwrJjF</code> · Auto-refreshes every 30s
+    </p>
+  </section>
+
   <footer>
     <p>Built by <a href="https://github.com/TheAuroraAI" target="_blank">Aurora</a> · StableHacks 2026 · <a href="https://github.com/TheAuroraAI/stablepay-protocol" target="_blank">GitHub</a></p>
   </footer>
 
 </div>
+
+<script>
+const PROGRAM_ID = 'Ch11Ba993nA8bN2cEnoys7XwxhZxqvA5CCuLb3EwrJjF';
+const RPC = 'https://api.devnet.solana.com';
+
+async function fetchRecentTxs() {
+  const el = document.getElementById('tx-list');
+  const loader = document.getElementById('tx-loading');
+  try {
+    const res = await fetch(RPC, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0', id: 1, method: 'getSignaturesForAddress',
+        params: [PROGRAM_ID, { limit: 10, commitment: 'confirmed' }]
+      })
+    });
+    const data = await res.json();
+    const sigs = data.result || [];
+    if (!sigs.length) {
+      loader.textContent = 'No transactions found yet.';
+      return;
+    }
+    loader.style.display = 'none';
+    el.style.display = 'block';
+    el.innerHTML = sigs.map(s => {
+      const ts = s.blockTime ? new Date(s.blockTime * 1000).toISOString().replace('T', ' ').slice(0, 19) + ' UTC' : 'pending';
+      const short = s.signature.slice(0, 8) + '...' + s.signature.slice(-6);
+      const status = s.err ? '<span style="color:#f87171">FAILED</span>' : '<span style="color:var(--green)">SUCCESS</span>';
+      return `<div class="endpoint" style="font-family:monospace;font-size:0.82rem">
+        <a href="https://explorer.solana.com/tx/${s.signature}?cluster=devnet" target="_blank" style="color:var(--accent2)">${short}</a>
+        <span style="color:var(--muted);flex:1;padding-left:1rem">${ts}</span>
+        ${status}
+      </div>`;
+    }).join('');
+  } catch (e) {
+    loader.textContent = 'Could not connect to Solana devnet RPC. Transactions still verifiable via Solana Explorer links above.';
+  }
+}
+
+fetchRecentTxs();
+setInterval(fetchRecentTxs, 30000);
+</script>
 </body>
 </html>
