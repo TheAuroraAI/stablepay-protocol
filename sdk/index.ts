@@ -404,7 +404,14 @@ export class StablePaySDK {
    * @throws Error if vault not found
    */
   async fetchVault(vaultPda: PublicKey): Promise<VaultAccount> {
-    const account = await this.program.account.vault.fetchNullable(vaultPda);
+    let account;
+    try {
+      account = await this.program.account.vault.fetchNullable(vaultPda);
+    } catch (err) {
+      throw new Error(
+        `Failed to fetch vault ${vaultPda.toBase58()}: ${err instanceof Error ? err.message : String(err)}`
+      );
+    }
     if (!account) {
       throw new Error(`Vault not found: ${vaultPda.toBase58()}`);
     }
@@ -420,7 +427,14 @@ export class StablePaySDK {
     proposalIndex: number
   ): Promise<TransferProposalAccount> {
     const [proposalPda] = findProposalPda(vault, proposalIndex, this.programId);
-    const account = await this.program.account.transferProposal.fetchNullable(proposalPda);
+    let account;
+    try {
+      account = await this.program.account.transferProposal.fetchNullable(proposalPda);
+    } catch (err) {
+      throw new Error(
+        `Failed to fetch proposal #${proposalIndex}: ${err instanceof Error ? err.message : String(err)}`
+      );
+    }
     if (!account) {
       throw new Error(`Proposal #${proposalIndex} not found`);
     }
@@ -437,12 +451,8 @@ export class StablePaySDK {
     const proposals: TransferProposalAccount[] = [];
 
     for (let i = 0; i < count; i++) {
-      try {
-        const proposal = await this.fetchProposal(vault, i);
-        proposals.push(proposal);
-      } catch {
-        // Skip missing proposals (shouldn't happen, but be defensive)
-      }
+      const proposal = await this.fetchProposal(vault, i);
+      proposals.push(proposal);
     }
 
     return proposals;

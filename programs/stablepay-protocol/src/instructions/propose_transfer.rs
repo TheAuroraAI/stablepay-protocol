@@ -67,7 +67,7 @@ pub fn handler(
     proposal.created_at = Clock::get()?.unix_timestamp;
     proposal.bump = bump;
 
-    vault.proposal_count = index + 1;
+    vault.proposal_count = index.checked_add(1).unwrap();
 
     msg!(
         "Transfer proposal #{}: {} USDC → {} ({}/{})",

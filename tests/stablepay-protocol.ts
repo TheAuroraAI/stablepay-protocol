@@ -942,4 +942,193 @@ describe("stablepay-protocol", () => {
       );
     });
   });
+
+  // ─── Boundary Value Tests ─────────────────────────────────────────────────
+
+  describe("boundary values", () => {
+    it("rejects duplicate approvers", async () => {
+      const dupOwner = Keypair.generate();
+      const dupMint = await createMint(provider.connection, owner, owner.publicKey, null, 6);
+      await airdrop(provider, dupOwner.publicKey);
+      const dupTokenKp = Keypair.generate();
+
+      await assertError(async () => {
+        await program.methods
+          .initializeVault(
+            1,
+            [dupOwner.publicKey, dupOwner.publicKey], // duplicate
+            new BN(0)
+          )
+          .accountsPartial({
+            vault: sdk.getVaultPda(dupOwner.publicKey, dupMint),
+            vaultTokenAccount: dupTokenKp.publicKey,
+            usdcMint: dupMint,
+            owner: dupOwner.publicKey,
+            tokenProgram: TOKEN_PROGRAM_ID,
+            systemProgram: SystemProgram.programId,
+            rent: SYSVAR_RENT_PUBKEY,
+          })
+          .signers([dupOwner, dupTokenKp])
+          .rpc();
+      }, "ApproverAlreadyExists");
+    });
+
+    it("transfer_limit = 0 means unlimited (allows any amount)", async () => {
+      // Use main vault which has 1B limit, first create an unlimited vault
+      const unlimOwner = Keypair.generate();
+      const unlimMint = await createMint(provider.connection, owner, owner.publicKey, null, 6);
+      await airdrop(provider, unlimOwner.publicKey);
+      const unlimTokenKp = Keypair.generate();
+
+      await program.methods
+        .initializeVault(
+          1,
+          [unlimOwner.publicKey],
+          new BN(0) // 0 = unlimited
+        )
+        .accountsPartial({
+          vault: sdk.getVaultPda(unlimOwner.publicKey, unlimMint),
+          vaultTokenAccount: unlimTokenKp.publicKey,
+          usdcMint: unlimMint,
+          owner: unlimOwner.publicKey,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          systemProgram: SystemProgram.programId,
+          rent: SYSVAR_RENT_PUBKEY,
+        })
+        .signers([unlimOwner, unlimTokenKp])
+        .rpc();
+
+      const [unlimVaultPda] = findVaultPda(unlimOwner.publicKey, unlimMint, program.programId);
+      const vault = await sdk.fetchVault(unlimVaultPda);
+      assert.equal(vault.transferLimit.toNumber(), 0);
+
+      // Propose a very large transfer (should succeed since limit=0)
+      const largeDest = Keypair.generate().publicKey;
+      await program.methods
+        .proposeTransfer(
+          new BN("999999999999"), // huge amount
+          largeDest,
+          "unlimited test"
+        )
+        .accountsPartial({
+          vault: unlimVaultPda,
+          proposal: sdk.getProposalPda(unlimVaultPda, 0),
+          proposer: unlimOwner.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([unlimOwner])
+        .rpc();
+
+      const proposal = await sdk.fetchProposal(unlimVaultPda, 0);
+      assert.equal(proposal.amount.toString(), "999999999999");
+    });
+
+    it("rejects transfer of limit + 1", async () => {
+      // Main vault has 1B (1_000_000_000) limit
+      await assertError(async () => {
+        const nextIdx = (await sdk.fetchVault(vaultPda)).proposalCount.toNumber();
+        await program.methods
+          .proposeTransfer(
+            new BN(1_000_000_001), // 1 over limit
+            recipient.publicKey,
+            "over limit"
+          )
+          .accountsPartial({
+            vault: vaultPda,
+            proposal: sdk.getProposalPda(vaultPda, nextIdx),
+            proposer: approver1.publicKey,
+            systemProgram: SystemProgram.programId,
+          })
+          .signers([approver1])
+          .rpc();
+      }, "ExceedsTransferLimit");
+    });
+
+    it("allows transfer of exactly the limit", async () => {
+      const nextIdx = (await sdk.fetchVault(vaultPda)).proposalCount.toNumber();
+      await program.methods
+        .proposeTransfer(
+          new BN(1_000_000_000), // exactly the limit
+          recipient.publicKey,
+          "exact limit"
+        )
+        .accountsPartial({
+          vault: vaultPda,
+          proposal: sdk.getProposalPda(vaultPda, nextIdx),
+          proposer: approver1.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([approver1])
+        .rpc();
+
+      const proposal = await sdk.fetchProposal(vaultPda, nextIdx);
+      assert.equal(proposal.amount.toString(), "1000000000");
+    });
+
+    it("rejects empty memo string (memo length 0 is valid)", async () => {
+      const nextIdx = (await sdk.fetchVault(vaultPda)).proposalCount.toNumber();
+      // Empty memo should be valid
+      await program.methods
+        .proposeTransfer(
+          new BN(100_000_000),
+          recipient.publicKey,
+          "" // empty memo
+        )
+        .accountsPartial({
+          vault: vaultPda,
+          proposal: sdk.getProposalPda(vaultPda, nextIdx),
+          proposer: approver1.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([approver1])
+        .rpc();
+
+      const proposal = await sdk.fetchProposal(vaultPda, nextIdx);
+      assert.equal(proposal.memo, "");
+    });
+
+    it("rejects memo exceeding 64 bytes", async () => {
+      const nextIdx = (await sdk.fetchVault(vaultPda)).proposalCount.toNumber();
+      const longMemo = "A".repeat(65);
+
+      await assertError(async () => {
+        await program.methods
+          .proposeTransfer(
+            new BN(100_000),
+            recipient.publicKey,
+            longMemo
+          )
+          .accountsPartial({
+            vault: vaultPda,
+            proposal: sdk.getProposalPda(vaultPda, nextIdx),
+            proposer: approver1.publicKey,
+            systemProgram: SystemProgram.programId,
+          })
+          .signers([approver1])
+          .rpc();
+      }, "MemoTooLong");
+    });
+
+    it("non-approver cannot execute even with enough approvals", async () => {
+      // outsider is not an approver on the main vault
+      const nextIdx = (await sdk.fetchVault(vaultPda)).proposalCount.toNumber() - 1;
+      // Try to execute an existing proposal as outsider
+      const [proposalPda] = findProposalPda(vaultPda, 0, program.programId);
+
+      await assertError(async () => {
+        await program.methods
+          .executeTransfer()
+          .accountsPartial({
+            vault: vaultPda,
+            proposal: proposalPda,
+            vaultTokenAccount: vaultTokenAccount,
+            destinationTokenAccount: recipientTokenAccount,
+            executor: outsider.publicKey,
+            tokenProgram: TOKEN_PROGRAM_ID,
+          })
+          .signers([outsider])
+          .rpc();
+      }, "NotAnApprover");
+    });
+  });
 });

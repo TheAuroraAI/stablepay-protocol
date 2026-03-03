@@ -35,6 +35,9 @@ pub struct ExecuteTransfer<'info> {
     )]
     pub destination_token_account: Account<'info, TokenAccount>,
 
+    #[account(
+        constraint = vault.is_approver(&executor.key()) @ StablePayError::NotAnApprover
+    )]
     pub executor: Signer<'info>,
     pub token_program: Program<'info, Token>,
 }
@@ -44,7 +47,7 @@ pub fn handler(ctx: Context<ExecuteTransfer>) -> Result<()> {
     let proposal = &mut ctx.accounts.proposal;
 
     require!(!vault.paused, StablePayError::VaultPaused);
-    require!(vault.is_approver(&ctx.accounts.executor.key()), StablePayError::NotAnApprover);
+    // Approver check enforced at account constraint level
     require!(!proposal.executed, StablePayError::ProposalAlreadyExecuted);
     require!(!proposal.cancelled, StablePayError::ProposalCancelled);
     require!(

@@ -51,6 +51,8 @@ const PORT = parseInt(process.env.PORT ?? "3000", 10);
 const X402_ENABLED = process.env.X402_ENABLED !== "false";
 const X402_RECEIVER =
   process.env.X402_RECEIVER ?? "0xC0140eEa19bD90a7cA75882d5218eFaF20426e42";
+const USDC_DECIMALS = 1_000_000;
+const MIN_TX_HASH_LENGTH = 10;
 
 // Devnet USDC mint (Circle test token)
 const DEVNET_USDC = "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU";
@@ -61,13 +63,16 @@ function loadKeypair(): Keypair {
   const keyPath =
     process.env.KEYPAIR_PATH ??
     path.join(process.env.HOME ?? "/root", ".config", "solana", "id.json");
+  if (!fs.existsSync(keyPath)) {
+    console.warn(`[WARN] Keypair not found at ${keyPath} — using ephemeral key (write operations will fail)`);
+    return Keypair.generate();
+  }
   try {
     const raw = fs.readFileSync(keyPath, "utf-8");
     const bytes = JSON.parse(raw) as number[];
     return Keypair.fromSecretKey(Uint8Array.from(bytes));
-  } catch {
-    console.warn(`[WARN] Could not load keypair at ${keyPath} — using ephemeral key`);
-    return Keypair.generate();
+  } catch (err) {
+    throw new Error(`Failed to load keypair at ${keyPath}: ${err instanceof Error ? err.message : String(err)}`);
   }
 }
 
@@ -124,7 +129,7 @@ function requirePayment(priceUsdc: number) {
               {
                 scheme: "exact",
                 network: "base",
-                maxAmountRequired: String(Math.round(priceUsdc * 1_000_000)),
+                maxAmountRequired: String(Math.round(priceUsdc * USDC_DECIMALS)),
                 resource: c.req.url,
                 description: `StablePay API — ${priceUsdc} USDC`,
                 mimeType: "application/json",
@@ -141,7 +146,7 @@ function requirePayment(priceUsdc: number) {
     }
 
     const [txHash] = payment.split(":");
-    if (!txHash || txHash.length < 10) {
+    if (!txHash || txHash.length < MIN_TX_HASH_LENGTH) {
       return c.json({ error: "Invalid X-Payment header (format: txHash:amount)" }, 400);
     }
 
@@ -160,8 +165,9 @@ function parsePubkey(raw: string): PublicKey | null {
 }
 
 function parseIndex(raw: string): number | null {
+  if (!/^\d+$/.test(raw)) return null;
   const n = parseInt(raw, 10);
-  return isNaN(n) || n < 0 ? null : n;
+  return n < 0 ? null : n;
 }
 
 function anchorErr(err: unknown): { message: string; code?: string } {
@@ -226,8 +232,13 @@ app.get("/info", (c) =>
       "POST /vault/:id/approve/:n": "0.005 USDC",
       "POST /vault/:id/execute/:n": "0.01 USDC",
       "POST /vault/:id/cancel/:n": "0.005 USDC",
+      "PATCH /vault/:id/pause": "0.01 USDC",
+      "PATCH /vault/:id/limit": "0.01 USDC",
+      "POST /vault/:id/allowlist": "0.01 USDC",
+      "DELETE /vault/:id/allowlist/:addr": "0.01 USDC",
       "GET /vault/:id": "free",
       "GET /vault/:id/proposals": "free",
+      "GET /vault/:id/proposals/:n": "free",
     },
     payment: {
       network: "base",
@@ -271,7 +282,11 @@ app.post("/vault", requirePayment(0.05), async (c) => {
   const usdcMintPubkey = mintStr ? parsePubkey(String(mintStr)) : new PublicKey(DEVNET_USDC);
   if (!usdcMintPubkey) return c.json({ error: "Invalid usdcMint" }, 400);
 
-  const limit = new BN(transferLimit ?? 0);
+  const limitStr = String(transferLimit ?? "0");
+  if (!/^\d+$/.test(limitStr)) {
+    return c.json({ error: "transferLimit must be a non-negative integer" }, 400);
+  }
+  const limit = new BN(limitStr);
 
   try {
     const tx = await sdk.initializeVault({
@@ -348,6 +363,10 @@ app.post("/vault/:vaultPda/propose", requirePayment(0.01), async (c) => {
   if (!body.amount || !body.destination) {
     return c.json({ error: "Required: amount (USDC lamports), destination (pubkey)" }, 400);
   }
+  const amountStr = String(body.amount);
+  if (!/^\d+$/.test(amountStr) || amountStr === "0") {
+    return c.json({ error: "amount must be a positive integer (USDC lamports)" }, 400);
+  }
   const destKey = parsePubkey(String(body.destination));
   if (!destKey) return c.json({ error: "Invalid destination pubkey" }, 400);
 
@@ -359,7 +378,7 @@ app.post("/vault/:vaultPda/propose", requirePayment(0.01), async (c) => {
     const tx = await sdk.proposeTransfer({
       vault: vaultKey,
       proposer: serverKeypair,
-      amount: new BN(String(body.amount)),
+      amount: new BN(amountStr),
       destination: destKey,
       memo: String(body.memo ?? ""),
     });

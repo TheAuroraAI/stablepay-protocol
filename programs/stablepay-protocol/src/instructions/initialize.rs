@@ -48,6 +48,12 @@ pub fn handler(
         StablePayError::ApproversFull
     );
 
+    // Reject duplicate approvers to prevent threshold bypass
+    let mut seen = std::collections::BTreeSet::new();
+    for approver in &approvers {
+        require!(seen.insert(approver), StablePayError::ApproverAlreadyExists);
+    }
+
     let vault = &mut ctx.accounts.vault;
     let bump = ctx.bumps.vault;
 
